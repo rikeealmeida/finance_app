@@ -1,5 +1,6 @@
 import 'package:finance_app/%20models/transaction_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 main() => runApp(
       const FinanceApp(),
@@ -18,6 +19,8 @@ class FinanceApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
+  String value;
+  String title;
   final _transactions = [
     Transaction(
       id: 't1',
@@ -41,7 +44,6 @@ class HomePage extends StatelessWidget {
         title: const Text('Despesas'),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
@@ -53,35 +55,83 @@ class HomePage extends StatelessWidget {
             ),
           ),
           Column(
-              children: _transactions.map((tr) {
-            return Card(
-              child: Row(
+            children: _transactions.map((tr) {
+              return Card(
+                child: Row(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.purple, width: 2),
+                      ),
+                      padding: const EdgeInsets.all(10),
+                      child: Text(
+                        'R\$ ${tr.value.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.purple,
+                        ),
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tr.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('d MMM y').format(tr.date),
+                          style: TextStyle(
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+          Card(
+            elevation: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
                 children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      tr.value.toString(),
+                  const TextField(
+                    decoration: InputDecoration(
+                      labelText: ('Título'),
                     ),
                   ),
-                  Column(
+                  const TextField(
+                    decoration: InputDecoration(labelText: 'Valor (R\$)'),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text(tr.title),
-                      Text(
-                        tr.date.toString(),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'Nova despesa',
+                          style: TextStyle(
+                            color: Colors.purple,
+                          ),
+                        ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
-            );
-          }).toList()),
+            ),
+          )
         ],
       ),
     );
