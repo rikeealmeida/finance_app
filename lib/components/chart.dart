@@ -23,14 +23,26 @@ class Chart extends StatelessWidget {
         bool sameYear = recentTransaction[i].date.year == weekDay.year;
 
         if (sameDay && sameMonth && sameYear) {
-          totalSum = recentTransaction[i].value;
+          totalSum += recentTransaction[i].value;
         }
       }
       return {
-        'day': DateFormat.E().format(weekDay)[0],
+        'day': DateFormat.E().format(weekDay) == 'Tue'
+            ? 'Ter'
+            : DateFormat.E().format(weekDay) == 'Mon'
+                ? 'Seg'
+                : DateFormat.E().format(weekDay) == 'Sun'
+                    ? 'Dom'
+                    : DateFormat.E().format(weekDay) == 'Sat'
+                        ? 'Sab'
+                        : DateFormat.E().format(weekDay) == 'Fri'
+                            ? 'Sex'
+                            : DateFormat.E().format(weekDay) == 'Thu'
+                                ? 'Qui'
+                                : 'Qua',
         'value': totalSum,
       };
-    });
+    }).reversed.toList();
   }
 
   double get _weekTotalValue {
@@ -44,7 +56,10 @@ class Chart extends StatelessWidget {
     groupedTransactions;
     return Card(
       elevation: 6,
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(
+        horizontal: 5,
+        vertical: 3,
+      ),
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Row(
@@ -55,7 +70,9 @@ class Chart extends StatelessWidget {
               child: ChartBar(
                 label: tr['day'],
                 value: tr['value'],
-                percentage: (tr['value'] as double) / _weekTotalValue,
+                percentage: _weekTotalValue == 0
+                    ? 0
+                    : (tr['value'] as double) / _weekTotalValue,
               ),
             );
           }).toList(),

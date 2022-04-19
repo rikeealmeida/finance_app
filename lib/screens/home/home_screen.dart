@@ -13,30 +13,53 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _showChart = false;
   final List<Transaction> _transactions = [
     Transaction(
+      date: DateTime.now(),
       id: 't1',
-      title: 'Novo tênis de corrida',
-      value: 310.76,
-      date: DateTime.now().subtract(
-        const Duration(days: 33),
-      ),
+      title: 'Compras',
+      value: 550,
     ),
     Transaction(
+      date: DateTime.now().subtract(
+        const Duration(days: 1),
+      ),
       id: 't2',
-      title: 'Conta de luz',
-      value: 211.30,
+      title: 'Compras',
+      value: 390,
+    ),
+    Transaction(
+      date: DateTime.now().subtract(
+        const Duration(days: 2),
+      ),
+      id: 't3',
+      title: 'Compras',
+      value: 130,
+    ),
+    Transaction(
       date: DateTime.now().subtract(
         const Duration(days: 3),
       ),
+      id: 't4',
+      title: 'Compras',
+      value: 460,
     ),
     Transaction(
-      id: 't3',
-      title: 'Cinema',
-      value: 251.30,
       date: DateTime.now().subtract(
         const Duration(days: 4),
       ),
+      id: 't5',
+      title: 'Compras',
+      value: 950,
+    ),
+    Transaction(
+      date: DateTime.now().subtract(
+        const Duration(days: 5),
+      ),
+      id: 't6',
+      title: 'Compras',
+      value: 50,
     ),
   ];
   List<Transaction> get _recentTransactions {
@@ -59,12 +82,12 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  _addTransaction(String title, double value) {
+  _addTransaction(String title, double value, DateTime date) {
     final newTransaction = Transaction(
       id: Random().nextDouble().toString(),
       title: title,
       value: value,
-      date: DateTime.now(),
+      date: date,
     );
 
     setState(() {
@@ -74,35 +97,78 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context).pop();
   }
 
+  _removeTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((tr) => tr.id == id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Despesas Pessoais'),
-        actions: [
+    final mediaQuery = MediaQuery.of(context);
+    bool isLandscape = mediaQuery.orientation == Orientation.landscape;
+    if (!isLandscape) _showChart = true;
+
+    final appBar = AppBar(
+      title: const Text('Despesas Pessoais'),
+      actions: [
+        if (isLandscape)
           IconButton(
-            onPressed: () => _openTransactionFormModal(context),
-            icon: const Icon(Icons.add),
+            onPressed: () {
+              setState(() {
+                _showChart = !_showChart;
+              });
+            },
+            icon: Icon(_showChart ? Icons.list : Icons.show_chart),
           ),
-        ],
-      ),
+        IconButton(
+          onPressed: () => _openTransactionFormModal(context),
+          icon: const Icon(Icons.add),
+        ),
+      ],
+    );
+
+    final availabelHeight = mediaQuery.size.height -
+        appBar.preferredSize.height -
+        mediaQuery.padding.top;
+
+    return Scaffold(
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Chart(
-              recentTransaction: _recentTransactions,
+            // if (isLandscape)
+            //   Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       Text('Exibir gráfico'),
+            //       Switch(
+            //         activeColor: Theme.of(context).colorScheme.secondary,
+            //         value: _showChart,
+            //         onChanged: (value) {
+            //           setState(() {
+            //             _showChart = value;
+            //           });
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            _showChart
+                ? Container(
+                    height: availabelHeight * (isLandscape ? 0.6 : 0.2),
+                    child: Chart(recentTransaction: _recentTransactions))
+                : SizedBox(),
+            Container(
+              height: availabelHeight * (isLandscape ? 1 : 0.80),
+              child: TransactionList(
+                  transactions: _transactions, onRemove: _removeTransaction),
             ),
-            TransactionList(
-              transactions: _transactions,
-            )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(
-          Icons.add,
-        ),
+        child: const Icon(Icons.add),
         onPressed: () => _openTransactionFormModal(context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

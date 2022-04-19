@@ -4,83 +4,91 @@ import 'package:intl/intl.dart';
 import '../ models/transaction_model.dart';
 
 class TransactionList extends StatelessWidget {
-  const TransactionList({Key key, this.transactions}) : super(key: key);
+  const TransactionList({Key key, this.transactions, this.onRemove})
+      : super(key: key);
 
   final List<Transaction> transactions;
+  final void Function(String) onRemove;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 555,
-      child: transactions.isEmpty
-          ? Column(
-              children: [
-                const SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Nenhuma Transação Cadastrada!',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  height: 300,
-                  child: Image.asset(
-                    'assets/images/waiting.png',
-                    fit: BoxFit.cover,
+    return transactions.isEmpty
+        ? LayoutBuilder(
+            builder: (ctx, constraints) {
+              return Column(
+                children: [
+                  const SizedBox(
+                    height: 20,
                   ),
-                )
-              ],
-            )
-          : ListView.builder(
-              itemCount: transactions.length,
-              itemBuilder: (ctx, index) {
-                final tr = transactions[index];
-                return Card(
-                  child: Row(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 2),
-                        ),
-                        padding: const EdgeInsets.all(10),
+                  Text(
+                    'Nenhuma Transação Cadastrada!',
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    height: constraints.maxHeight * .6,
+                    child: Image.asset(
+                      'assets/images/waiting.png',
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                ],
+              );
+            },
+          )
+        : ListView.builder(
+            itemCount: transactions.length,
+            itemBuilder: (ctx, index) {
+              final tr = transactions[index];
+              return Card(
+                elevation: 5,
+                margin: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 5,
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 30,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: FittedBox(
                         child: Text(
-                          'R\$ ${tr.value.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                          'R\$ ${tr.value}',
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tr.title,
-                            style: Theme.of(context).textTheme.headline6,
+                    ),
+                  ),
+                  title: Text(
+                    tr.title,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  subtitle: Text(
+                    DateFormat('d MMM y').format(tr.date),
+                  ),
+                  trailing: MediaQuery.of(context).size.width > 400
+                      ? TextButton.icon(
+                          onPressed: () => onRemove(tr.id),
+                          icon: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).errorColor,
                           ),
-                          Text(
-                            DateFormat('d MMM y').format(tr.date),
+                          label: Text(
+                            'Excluir',
                             style: TextStyle(
-                              color: Colors.grey,
+                              color: Theme.of(context).errorColor,
                             ),
                           ),
-                        ],
-                      )
-                    ],
-                  ),
-                );
-              },
-            ),
-    );
+                        )
+                      : IconButton(
+                          onPressed: () => onRemove(tr.id),
+                          color: Theme.of(context).errorColor,
+                          icon: const Icon(Icons.delete),
+                        ),
+                ),
+              );
+            },
+          );
   }
 }
